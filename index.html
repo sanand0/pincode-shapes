@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>PIN Code Boundary Editor</title>
+  <style>
+  body {
+    font-family: "Segoe UI", Frutiger, "Frutiger Linotype", "Dejavu Sans", "Helvetica Neue", Arial, sans-serif;
+    margin: 0;
+  }
+  header {
+    background-color: rgba(0,0,0,.3);
+    color: #fff;
+    padding: 0.5rem 1rem;
+    position: absolute;
+    right: 0;
+    z-index: 1;
+    pointer-events: none;
+  }
+  h1 {
+    margin: 0.5rem 0;
+    font-size: 1.3rem;
+    font-weight: normal;
+    text-transform: uppercase;
+  }
+  #info {
+
+  }
+  #map {
+    width: 100%;
+    height: 100vh;
+  }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.2.3/leaflet.draw.css">
+</head>
+<body>
+
+  <header>
+    <h1>PIN Code Boundary Editor</h1>
+    <div id="info"></div>
+  </header>
+  <div id="map"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.2.3/leaflet.draw.js"></script>
+  <script>
+  // Draw a leaflet map
+  var map = L.map('map', {
+    // Don't go outside India
+    maxBounds: [[7, 67], [38, 98]],
+    minZoom: 5,
+
+    // Zoom into Mandya for the moment. This prototype is for Mandya
+    center: [12.52, 76.89],
+    zoom: 14
+  })
+
+  // Picked from http://leaflet-extras.github.io/leaflet-providers/preview/
+  L.tileLayer('http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  }).addTo(map)
+
+  // Add post office points
+  var points
+  var pointsUrl = 'https://postoffices.firebaseio.com/points.json'
+  var pointOptions = {
+      radius: 8,
+      fillColor: "#ff7800",
+      color: "#000",
+      opacity: 0.5,
+      fillOpacity: 0.5
+  }
+  load(pointsUrl, function(json) {
+    points = L.geoJson(json, {
+      pointToLayer: function (feature, latlng) {
+          return L.circleMarker(latlng, pointOptions)
+      }
+    })
+    points.addTo(map)
+  })
+
+  // Add post office boundary layers
+  var shapes
+  var shapesUrl = 'https://postoffices.firebaseio.com/shapes.json'
+  load(shapesUrl, function(json) {
+    shapes = L.geoJson(json, {
+      style: function(feature) {
+        return {
+          color: '#000',
+          weight: 2,
+          fillOpacity: 0.1,
+          fillColor: '#fff'
+        }
+      },
+      onEachFeature: function(feature, layer) {
+        layer.on({
+          mouseover: highlightShape,
+          mouseout: resetShape
+        })
+      }
+    })
+    shapes.addTo(map)
+
+    // Initialise the draw control and pass it the FeatureGroup of editable layers
+    var drawControl = new L.Control.Draw({
+      draw: false,
+      edit: {featureGroup: shapes}
+    })
+    map.addControl(drawControl)
+
+    // When the map is edited, save it
+    map.on({
+      'draw:created': save,
+      'draw:edited': save,
+      'draw:deleted': save,
+      'draw:drawstart': editstart,
+      'draw:editstart': editstart,
+      'draw:deletestart': editstart,
+      'draw:drawstop': editstop,
+      'draw:editstop': editstop,
+      'draw:deletestop': editstop,
+    })
+  })
+
+  var editing = false
+  function editstart() { editing = true }
+  function editstop() { editing = false }
+
+  var info = document.querySelector('#info')
+  function highlightShape(e) {
+    if (!editing)
+      e.target.setStyle({fillColor: '#000', color: '#fff'})
+    info.innerHTML = e.target.feature.properties.Office_Nam
+  }
+  function resetShape(e) {
+    if (!editing)
+      shapes.resetStyle(e.target)
+    info.innerHTML = ''
+  }
+
+  function load(url, callback) {
+    var xhr = new XMLHttpRequest()
+    xhr.open('GET', url, true)
+    xhr.onload = function(e) { callback(JSON.parse(this.response)) }
+    xhr.send()
+  }
+  function save() {
+    var xhr = new XMLHttpRequest()
+    xhr.open('PUT', shapesUrl, true)
+    xhr.send(JSON.stringify(shapes.toGeoJSON()))
+  }
+  </script>
+</body>
+</html>
