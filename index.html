@@ -63,15 +63,15 @@
   }).addTo(map)
 
   // Add post office points
-  var points
-  var pointsUrl = 'https://postoffices.firebaseio.com/points.json'
-  var pointOptions = {
-      radius: 8,
-      fillColor: "#ff7800",
-      color: "#000",
-      opacity: 0.5,
-      fillOpacity: 0.5
-  }
+  var points,
+      pointsUrl = 'https://postoffices.firebaseio.com/points.json',
+      pointOptions = {
+        radius: 8,
+        fillColor: "#ff7800",
+        color: "#000",
+        opacity: 0.5,
+        fillOpacity: 0.5
+      }
   load(pointsUrl, function(json) {
     points = L.geoJson(json, {
       pointToLayer: function (feature, latlng) {
@@ -81,19 +81,33 @@
     points.addTo(map)
   })
 
+  // Add base layers (village boundaries)
+  var base,
+      baseUrl = 'https://postoffices.firebaseio.com/base.json',
+      baseStype = {
+        color: '#c0504d',
+        weight: 1,
+        fillOpacity: 0
+      }
+  load(baseUrl, function(json) {
+    base = L.geoJson(json, {
+      style: function(feature) { return baseStype }
+    })
+    base.addTo(map).setZIndex(0)
+  })
+
   // Add post office boundary layers
-  var shapes
-  var shapesUrl = 'https://postoffices.firebaseio.com/shapes.json'
+  var shapes,
+      shapesUrl = 'https://postoffices.firebaseio.com/shapes.json',
+      shapesStyle = {
+        color: '#000',
+        weight: 2,
+        fillOpacity: 0.1,
+        fillColor: '#fff'
+      }
   load(shapesUrl, function(json) {
     shapes = L.geoJson(json, {
-      style: function(feature) {
-        return {
-          color: '#000',
-          weight: 2,
-          fillOpacity: 0.1,
-          fillColor: '#fff'
-        }
-      },
+      style: function(feature) { return shapesStyle },
       onEachFeature: function(feature, layer) {
         layer.on({
           mouseover: highlightShape,
@@ -101,7 +115,7 @@
         })
       }
     })
-    shapes.addTo(map)
+    shapes.addTo(map).setZIndex(5)
 
     // Initialise the draw control and pass it the FeatureGroup of editable layers
     var drawControl = new L.Control.Draw({
