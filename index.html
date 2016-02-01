@@ -93,7 +93,12 @@
     base = L.geoJson(json, {
       style: function(feature) { return baseStype }
     })
-    base.addTo(map).setZIndex(0)
+    base.addTo(map)
+    // Make sure shapes is no top
+    if (shapes) {
+      map.removeLayer(shapes)
+      shapes.addTo(map)
+    }
   })
 
   // Add post office boundary layers
@@ -115,7 +120,7 @@
         })
       }
     })
-    shapes.addTo(map).setZIndex(5)
+    shapes.addTo(map)
 
     // Initialise the draw control and pass it the FeatureGroup of editable layers
     var drawControl = new L.Control.Draw({
