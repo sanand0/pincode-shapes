@@ -118,6 +118,10 @@
           mouseover: highlightShape,
           mouseout: resetShape
         })
+        layer.bindPopup(
+          feature.properties.Office_Nam + ': ' +
+          feature.properties.officeType + ' (' +
+          feature.properties.pincode + ')')
       }
     })
     shapes.addTo(map)
