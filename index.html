@@ -72,7 +72,7 @@
   var satellite = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
   })
-  satellite.addTo(map)
+  streets.addTo(map)
 
   // Add post office points
   var points,
@@ -97,7 +97,7 @@
   var base,
       baseUrl = 'https://postoffices.firebaseio.com/base.json',
       baseStype = {
-        color: '#000',
+        color: '#04f',
         weight: 1,
         fillOpacity: 0
       }
