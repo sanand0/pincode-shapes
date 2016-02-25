@@ -9,7 +9,7 @@
     margin: 0;
   }
   header {
-    background-color: rgba(0,0,0,.3);
+    background-color: rgba(0,0,0,.7);
     color: #fff;
     padding: 0.5rem 1rem;
     position: absolute;
@@ -131,9 +131,9 @@
           mouseout: resetShape
         })
         layer.bindPopup(
-          feature.properties.Office_Nam + ': ' +
-          feature.properties.officeType + ' (' +
-          feature.properties.pincode + ')')
+          feature.properties.Branch_Ofc + ': ' +
+          feature.properties.Sub_PO + ' (' +
+          feature.properties.Pincode + ')')
       }
     })
     shapes.addTo(map)
@@ -167,7 +167,11 @@
   function highlightShape(e) {
     if (!editing)
       e.target.setStyle({fillColor: '#000', color: '#fff'})
-    info.innerHTML = e.target.feature.properties.Office_Nam
+    var properties = e.target.feature.properties
+    if (properties.Sub_PO)
+        info.innerHTML = properties.Sub_PO + '<br>' + properties.Branch_Ofc + '<br>' + properties.Pincode
+    else
+      info.innerHTML = properties.Village_Na
   }
   function resetShape(e) {
     if (!editing)
