@@ -27,8 +27,16 @@ Upload the following keys on <https://postoffices.firebaseio.com/>:
 - [shapes.json](https://postoffices.firebaseio.com/shapes.json): the post office
   boundaries as GeoJSON
 
-The edited post office boundaries can be downloaded from
-[shapes.json](https://postoffices.firebaseio.com/shapes.json).
+The data can be downloaded as GeoJSON from these URLs:
+
+    curl -o points.json https://postoffices.firebaseio.com/points.json
+    curl -o base.json https://postoffices.firebaseio.com/base.json
+    curl -o shapes.json https://postoffices.firebaseio.com/shapes.json
+
+To update the shapes with a new GeoJSON file, use:
+
+    curl -X PUT -d @shapes.json https://postoffices.firebaseio.com/shapes.json
+
 
 Contacts
 --------
